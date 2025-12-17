@@ -4,6 +4,10 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "In Loving Memory of Dr. Michael Mauck",
   description: "A memorial tribute to the amazing Dr. Michael Mauck. Share your memories and celebrate his life.",
+  icons: {
+    icon: '/favicon.svg',
+    apple: '/favicon.svg',
+  },
   openGraph: {
     title: "In Loving Memory of Dr. Michael Mauck",
     description: "A memorial tribute to the amazing Dr. Michael Mauck. Share your memories and celebrate his life.",
