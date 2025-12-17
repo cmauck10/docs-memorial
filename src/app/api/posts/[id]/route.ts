@@ -36,7 +36,7 @@ export async function PATCH(
     const supabase = getSupabaseClient();
     const { id } = await params;
     const body = await request.json();
-    const { guest_name, message, media_url, media_type, guest_token, is_hidden } = body;
+    const { guest_name, message, media, guest_token, is_hidden } = body;
 
     // Verify guest token matches (for non-admin updates)
     if (guest_token) {
@@ -60,8 +60,7 @@ export async function PATCH(
 
     if (guest_name !== undefined) updateData.guest_name = guest_name.trim();
     if (message !== undefined) updateData.message = message.trim();
-    if (media_url !== undefined) updateData.media_url = media_url;
-    if (media_type !== undefined) updateData.media_type = media_type;
+    if (media !== undefined) updateData.media = media;
     if (is_hidden !== undefined) updateData.is_hidden = is_hidden;
 
     const { data, error } = await supabase

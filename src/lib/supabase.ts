@@ -23,12 +23,16 @@ export const supabase = {
   }
 };
 
+export type MediaItem = {
+  url: string;
+  type: 'image' | 'video';
+};
+
 export type Post = {
   id: string;
   guest_name: string;
   message: string;
-  media_url: string | null;
-  media_type: 'image' | 'video' | null;
+  media: MediaItem[];
   guest_token: string;
   is_hidden: boolean;
   created_at: string;

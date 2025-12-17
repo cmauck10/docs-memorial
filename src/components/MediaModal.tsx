@@ -1,75 +1,145 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState, useCallback } from 'react';
+import { MediaItem } from '@/lib/supabase';
 
 interface MediaModalProps {
   isOpen: boolean;
   onClose: () => void;
-  mediaUrl: string;
-  mediaType: 'image' | 'video' | null;
+  media: MediaItem[];
+  startIndex?: number;
   guestName: string;
 }
 
 export default function MediaModal({ 
   isOpen, 
   onClose, 
-  mediaUrl, 
-  mediaType, 
+  media,
+  startIndex = 0,
   guestName 
 }: MediaModalProps) {
+  const [currentIndex, setCurrentIndex] = useState(startIndex);
+
+  const goToPrevious = useCallback(() => {
+    setCurrentIndex((prev) => (prev === 0 ? media.length - 1 : prev - 1));
+  }, [media.length]);
+
+  const goToNext = useCallback(() => {
+    setCurrentIndex((prev) => (prev === media.length - 1 ? 0 : prev + 1));
+  }, [media.length]);
+
   useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+    setCurrentIndex(startIndex);
+  }, [startIndex, isOpen]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!isOpen) return;
+      
+      switch (e.key) {
+        case 'Escape':
+          onClose();
+          break;
+        case 'ArrowLeft':
+          goToPrevious();
+          break;
+        case 'ArrowRight':
+          goToNext();
+          break;
+      }
     };
 
+    document.addEventListener('keydown', handleKeyDown);
+    
     if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
       document.body.style.overflow = 'hidden';
     }
 
     return () => {
-      document.removeEventListener('keydown', handleEscape);
+      document.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = 'unset';
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, goToPrevious, goToNext]);
 
-  if (!isOpen) return null;
+  if (!isOpen || media.length === 0) return null;
+
+  const currentMedia = media[currentIndex];
+  const hasMultiple = media.length > 1;
 
   return (
     <div 
-      className="fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 modal-backdrop flex items-center justify-center"
       onClick={onClose}
     >
+      {/* Close button */}
+      <button
+        onClick={onClose}
+        className="absolute top-4 right-4 text-white hover:text-[var(--color-dusty-rose)] transition-colors p-2 z-10"
+        aria-label="Close modal"
+      >
+        <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
+      {/* Counter */}
+      {hasMultiple && (
+        <div className="absolute top-4 left-4 text-white text-sm bg-black/40 px-3 py-1 rounded-full">
+          {currentIndex + 1} / {media.length}
+        </div>
+      )}
+
+      {/* Navigation arrows */}
+      {hasMultiple && (
+        <>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              goToPrevious();
+            }}
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:text-[var(--color-dusty-rose)] transition-colors p-2 bg-black/30 rounded-full hover:bg-black/50"
+            aria-label="Previous"
+          >
+            <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              goToNext();
+            }}
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:text-[var(--color-dusty-rose)] transition-colors p-2 bg-black/30 rounded-full hover:bg-black/50"
+            aria-label="Next"
+          >
+            <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </>
+      )}
+
+      {/* Main content */}
       <div 
-        className="relative max-w-5xl max-h-[90vh] w-full animate-fade-in-scale"
+        className="relative max-w-5xl max-h-[85vh] w-full mx-4 animate-fade-in-scale"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Close button */}
-        <button
-          onClick={onClose}
-          className="absolute -top-12 right-0 text-white hover:text-[var(--color-dusty-rose)] transition-colors p-2"
-          aria-label="Close modal"
-        >
-          <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-
-        {/* Media content */}
         <div className="bg-white rounded-2xl overflow-hidden shadow-2xl">
-          {mediaType === 'video' ? (
+          {currentMedia.type === 'video' ? (
             <video 
-              src={mediaUrl}
-              className="w-full max-h-[80vh] object-contain bg-black"
+              key={currentMedia.url}
+              src={currentMedia.url}
+              className="w-full max-h-[75vh] object-contain bg-black"
               controls
               autoPlay
               playsInline
             />
           ) : (
             <img 
-              src={mediaUrl} 
+              key={currentMedia.url}
+              src={currentMedia.url} 
               alt={`Memory shared by ${guestName}`}
-              className="w-full max-h-[80vh] object-contain"
+              className="w-full max-h-[75vh] object-contain"
             />
           )}
           
@@ -81,7 +151,32 @@ export default function MediaModal({
           </div>
         </div>
       </div>
+
+      {/* Thumbnail strip */}
+      {hasMultiple && (
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 bg-black/40 p-2 rounded-lg">
+          {media.map((item, index) => (
+            <button
+              key={index}
+              onClick={(e) => {
+                e.stopPropagation();
+                setCurrentIndex(index);
+              }}
+              className={`w-12 h-12 rounded overflow-hidden transition-all ${
+                index === currentIndex 
+                  ? 'ring-2 ring-white ring-offset-2 ring-offset-black/40' 
+                  : 'opacity-60 hover:opacity-100'
+              }`}
+            >
+              {item.type === 'video' ? (
+                <video src={item.url} className="w-full h-full object-cover" muted />
+              ) : (
+                <img src={item.url} alt="" className="w-full h-full object-cover" />
+              )}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
-

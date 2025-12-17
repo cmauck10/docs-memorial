@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
   try {
     const supabase = getSupabaseClient();
     const body = await request.json();
-    const { guest_name, message, media_url, media_type, guest_token } = body;
+    const { guest_name, message, media, guest_token } = body;
 
     if (!guest_name || !message || !guest_token) {
       return NextResponse.json(
@@ -42,8 +42,7 @@ export async function POST(request: NextRequest) {
       .insert({
         guest_name: guest_name.trim(),
         message: message.trim(),
-        media_url,
-        media_type,
+        media: media || [],
         guest_token
       })
       .select()

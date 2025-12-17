@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Post } from '@/lib/supabase';
+import { Post, MediaItem } from '@/lib/supabase';
 import { getGuestToken } from '@/lib/guest-token';
 import MediaModal from './MediaModal';
 
@@ -23,12 +23,11 @@ export default function PostCard({
   animationDelay = 0 
 }: PostCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalStartIndex, setModalStartIndex] = useState(0);
   const [canEdit, setCanEdit] = useState(false);
-  const [guestToken, setGuestToken] = useState('');
 
   useEffect(() => {
     const token = getGuestToken();
-    setGuestToken(token);
     setCanEdit(token === post.guest_token);
   }, [post.guest_token]);
 
@@ -41,6 +40,16 @@ export default function PostCard({
     });
   };
 
+  const media = post.media || [];
+  const hasMedia = media.length > 0;
+  const firstMedia = media[0];
+  const additionalCount = media.length - 1;
+
+  const openModal = (index: number = 0) => {
+    setModalStartIndex(index);
+    setIsModalOpen(true);
+  };
+
   return (
     <>
       <article 
@@ -48,44 +57,99 @@ export default function PostCard({
         style={{ animationDelay: `${animationDelay}s` }}
       >
         {/* Media Section */}
-        {post.media_url && (
-          <div 
-            className="media-container relative cursor-pointer group"
-            onClick={() => setIsModalOpen(true)}
-          >
-            {post.media_type === 'video' ? (
-              <video 
-                src={post.media_url}
-                className="w-full h-full object-cover"
-                muted
-                playsInline
-              />
+        {hasMedia && (
+          <div className="relative">
+            {/* Main media display */}
+            {media.length === 1 ? (
+              // Single media
+              <div 
+                className="media-container relative cursor-pointer group"
+                onClick={() => openModal(0)}
+              >
+                {firstMedia.type === 'video' ? (
+                  <video 
+                    src={firstMedia.url}
+                    className="w-full h-full object-cover"
+                    muted
+                    playsInline
+                  />
+                ) : (
+                  <img 
+                    src={firstMedia.url} 
+                    alt={`Memory shared by ${post.guest_name}`}
+                    className="w-full h-full object-cover"
+                  />
+                )}
+                <MediaOverlay type={firstMedia.type} />
+              </div>
+            ) : media.length === 2 ? (
+              // Two media items side by side
+              <div className="grid grid-cols-2 gap-0.5">
+                {media.slice(0, 2).map((item, idx) => (
+                  <div 
+                    key={idx}
+                    className="aspect-square relative cursor-pointer group"
+                    onClick={() => openModal(idx)}
+                  >
+                    {item.type === 'video' ? (
+                      <video src={item.url} className="w-full h-full object-cover" muted playsInline />
+                    ) : (
+                      <img src={item.url} alt="" className="w-full h-full object-cover" />
+                    )}
+                    <MediaOverlay type={item.type} />
+                  </div>
+                ))}
+              </div>
             ) : (
-              <img 
-                src={post.media_url} 
-                alt={`Memory shared by ${post.guest_name}`}
-                className="w-full h-full object-cover"
-              />
-            )}
-            
-            {/* Hover overlay */}
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center">
-              <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="bg-white/90 rounded-full p-3">
-                  <svg className="w-6 h-6 text-[var(--color-charcoal)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
-                  </svg>
+              // Three or more - grid layout
+              <div className="grid grid-cols-2 gap-0.5">
+                <div 
+                  className="row-span-2 relative cursor-pointer group"
+                  onClick={() => openModal(0)}
+                >
+                  <div className="aspect-[3/4] h-full">
+                    {firstMedia.type === 'video' ? (
+                      <video src={firstMedia.url} className="w-full h-full object-cover" muted playsInline />
+                    ) : (
+                      <img src={firstMedia.url} alt="" className="w-full h-full object-cover" />
+                    )}
+                  </div>
+                  <MediaOverlay type={firstMedia.type} />
+                </div>
+                <div className="flex flex-col gap-0.5">
+                  {media.slice(1, 3).map((item, idx) => (
+                    <div 
+                      key={idx}
+                      className="aspect-square relative cursor-pointer group"
+                      onClick={() => openModal(idx + 1)}
+                    >
+                      {item.type === 'video' ? (
+                        <video src={item.url} className="w-full h-full object-cover" muted playsInline />
+                      ) : (
+                        <img src={item.url} alt="" className="w-full h-full object-cover" />
+                      )}
+                      <MediaOverlay type={item.type} />
+                      {/* Show +N overlay on last visible item if there are more */}
+                      {idx === 1 && media.length > 3 && (
+                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                          <span className="text-white text-2xl font-semibold">
+                            +{media.length - 3}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
               </div>
-            </div>
+            )}
 
-            {/* Video indicator */}
-            {post.media_type === 'video' && (
-              <div className="absolute bottom-3 right-3 bg-black/60 text-white px-2 py-1 rounded text-xs flex items-center gap-1">
-                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M8 5v14l11-7z" />
+            {/* Media count badge */}
+            {media.length > 1 && (
+              <div className="absolute bottom-2 right-2 bg-black/60 text-white px-2 py-1 rounded-full text-xs flex items-center gap-1">
+                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                Video
+                {media.length}
               </div>
             )}
           </div>
@@ -163,12 +227,12 @@ export default function PostCard({
       </article>
 
       {/* Media Modal */}
-      {post.media_url && (
+      {hasMedia && (
         <MediaModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-          mediaUrl={post.media_url}
-          mediaType={post.media_type}
+          media={media}
+          startIndex={modalStartIndex}
           guestName={post.guest_name}
         />
       )}
@@ -176,3 +240,19 @@ export default function PostCard({
   );
 }
 
+// Hover overlay component
+function MediaOverlay({ type }: { type: 'image' | 'video' }) {
+  return (
+    <>
+      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300" />
+      {type === 'video' && (
+        <div className="absolute bottom-2 left-2 bg-black/60 text-white px-2 py-1 rounded text-xs flex items-center gap-1">
+          <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M8 5v14l11-7z" />
+          </svg>
+          Video
+        </div>
+      )}
+    </>
+  );
+}
