@@ -14,7 +14,7 @@ export default function AdminPage() {
   
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(false);
-  const [filter, setFilter] = useState<'all' | 'visible' | 'hidden'>('all');
+  const [filter, setFilter] = useState<'all' | 'visible' | 'hidden' | 'pinned'>('all');
   
   const [editingPost, setEditingPost] = useState<Post | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -109,6 +109,25 @@ export default function AdminPage() {
     }
   };
 
+  const handlePin = async (postId: string, isPinned: boolean) => {
+    try {
+      const supabase = getSupabase();
+      const { error } = await supabase
+        .from('posts')
+        .update({ is_pinned: isPinned })
+        .eq('id', postId);
+
+      if (error) {
+        console.error('Error updating post:', error);
+        alert('Failed to update post pin status');
+      } else {
+        fetchAllPosts();
+      }
+    } catch (err) {
+      console.error('Error:', err);
+    }
+  };
+
   const handleDelete = async (postId: string) => {
     try {
       const supabase = getSupabase();
@@ -174,6 +193,7 @@ export default function AdminPage() {
   const filteredPosts = posts.filter(post => {
     if (filter === 'visible') return !post.is_hidden;
     if (filter === 'hidden') return post.is_hidden;
+    if (filter === 'pinned') return post.is_pinned;
     return true;
   });
 
@@ -312,17 +332,24 @@ export default function AdminPage() {
                 </p>
                 <p className="text-xs text-[var(--color-warm-gray)]">Hidden</p>
               </div>
+              <div className="text-center">
+                <p className="text-2xl font-semibold text-[var(--color-tennessee)]">
+                  {posts.filter(p => p.is_pinned).length}
+                </p>
+                <p className="text-xs text-[var(--color-warm-gray)]">Pinned</p>
+              </div>
             </div>
 
             <div className="flex items-center gap-2">
               <select
                 value={filter}
-                onChange={(e) => setFilter(e.target.value as 'all' | 'visible' | 'hidden')}
+                onChange={(e) => setFilter(e.target.value as 'all' | 'visible' | 'hidden' | 'pinned')}
                 className="px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-tennessee)]"
               >
                 <option value="all">All Posts</option>
                 <option value="visible">Visible</option>
                 <option value="hidden">Hidden</option>
+                <option value="pinned">Pinned</option>
               </select>
               <button
                 onClick={fetchAllPosts}
@@ -357,6 +384,7 @@ export default function AdminPage() {
                   onEdit={handleEdit}
                   onHide={handleHide}
                   onDelete={handleDelete}
+                  onPin={handlePin}
                   animationDelay={index * 0.05}
                 />
               </div>

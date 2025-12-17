@@ -30,6 +30,7 @@ export default function Home() {
         .from('posts')
         .select('*', { count: 'exact' })
         .eq('is_hidden', false)
+        .order('is_pinned', { ascending: false })
         .order('created_at', { ascending: false })
         .range(offset, offset + POSTS_PER_PAGE - 1);
 

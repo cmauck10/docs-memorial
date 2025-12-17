@@ -18,6 +18,7 @@ interface PostCardProps {
   isAdmin?: boolean;
   onHide?: (postId: string, isHidden: boolean) => void;
   onDelete?: (postId: string) => void;
+  onPin?: (postId: string, isPinned: boolean) => void;
   animationDelay?: number;
   priority?: boolean; // For above-the-fold cards
 }
@@ -28,6 +29,7 @@ function PostCardComponent({
   isAdmin = false,
   onHide,
   onDelete,
+  onPin,
   animationDelay = 0,
   priority = false
 }: PostCardProps) {
@@ -79,10 +81,15 @@ function PostCardComponent({
     }
   }, [onDelete, post.id]);
 
+  const handlePin = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    onPin?.(post.id, !post.is_pinned);
+  }, [onPin, post.id, post.is_pinned]);
+
   return (
     <>
       <article 
-        className="post-card bg-white rounded-xl overflow-hidden shadow-sm opacity-0 animate-fade-in cursor-pointer"
+        className={`post-card bg-white rounded-xl overflow-hidden shadow-sm opacity-0 animate-fade-in cursor-pointer ${post.is_pinned ? 'ring-2 ring-[var(--color-tennessee)]' : ''}`}
         style={{ animationDelay: `${animationDelay}s` }}
         onClick={handleCardClick}
       >
@@ -156,6 +163,16 @@ function PostCardComponent({
 
         {/* Content Section */}
         <div className="p-4">
+          {/* Pinned indicator */}
+          {post.is_pinned && (
+            <div className="flex items-center gap-1 text-[var(--color-tennessee)] text-xs font-medium mb-2">
+              <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/>
+              </svg>
+              Pinned
+            </div>
+          )}
+          
           {/* Header with name and date */}
           <div className="flex items-start justify-between mb-2">
             <div>
@@ -196,6 +213,16 @@ function PostCardComponent({
           {/* Admin controls */}
           {isAdmin && (
             <div className="mt-3 pt-3 border-t border-gray-100 flex items-center gap-2 flex-wrap">
+              <button
+                onClick={handlePin}
+                className={`text-xs px-2 py-1 rounded-md transition-colors ${
+                  post.is_pinned 
+                    ? 'bg-[var(--color-tennessee)] text-white hover:bg-[var(--color-tennessee-dark)]' 
+                    : 'bg-orange-100 text-orange-700 hover:bg-orange-200'
+                }`}
+              >
+                {post.is_pinned ? 'Unpin' : 'Pin'}
+              </button>
               <button
                 onClick={handleHide}
                 className={`text-xs px-2 py-1 rounded-md transition-colors ${

@@ -10,9 +10,13 @@ CREATE TABLE IF NOT EXISTS posts (
   media JSONB DEFAULT '[]', -- Array of {url, type} objects
   guest_token TEXT NOT NULL,
   is_hidden BOOLEAN DEFAULT FALSE,
+  is_pinned BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- To add is_pinned to existing table:
+-- ALTER TABLE posts ADD COLUMN IF NOT EXISTS is_pinned BOOLEAN DEFAULT FALSE;
 
 -- Admin Users Table (for simple auth)
 CREATE TABLE IF NOT EXISTS admin_users (
