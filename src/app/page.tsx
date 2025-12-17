@@ -62,11 +62,14 @@ export default function Home() {
             />
           </div>
           <div className="text-left">
-            <h1 className="text-2xl md:text-4xl font-serif text-[var(--color-charcoal)] mb-1">
+            <p className="text-[var(--color-warm-gray)] text-xs uppercase tracking-widest mb-1">
+              In Loving Memory
+            </p>
+            <h1 className="text-2xl md:text-4xl font-serif text-[var(--color-charcoal)]">
               Dr. Michael Mauck
             </h1>
-            <p className="text-[var(--color-warm-gray)] text-sm uppercase tracking-widest">
-              In Loving Memory
+            <p className="text-[var(--color-warm-gray)] text-sm mt-1">
+              Beloved father, husband, and surgeon
             </p>
             <div className="w-20 h-1 bg-gradient-to-r from-[var(--color-tennessee)] to-transparent mt-2 rounded-full" />
           </div>

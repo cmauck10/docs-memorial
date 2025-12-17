@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Post, MediaItem } from '@/lib/supabase';
+import { Post } from '@/lib/supabase';
 import { getGuestToken } from '@/lib/guest-token';
-import MediaModal from './MediaModal';
+import PostModal from './PostModal';
 
 interface PostCardProps {
   post: Post;
@@ -22,8 +22,7 @@ export default function PostCard({
   onDelete,
   animationDelay = 0 
 }: PostCardProps) {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalStartIndex, setModalStartIndex] = useState(0);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [canEdit, setCanEdit] = useState(false);
 
   useEffect(() => {
@@ -44,16 +43,18 @@ export default function PostCard({
   const hasMedia = media.length > 0;
   const firstMedia = media[0];
 
-  const openModal = (index: number = 0) => {
-    setModalStartIndex(index);
-    setIsModalOpen(true);
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Don't expand if clicking on admin controls or edit button
+    if ((e.target as HTMLElement).closest('button')) return;
+    setIsExpanded(true);
   };
 
   return (
     <>
       <article 
-        className="post-card bg-white rounded-xl overflow-hidden shadow-sm opacity-0 animate-fade-in"
+        className="post-card bg-white rounded-xl overflow-hidden shadow-sm opacity-0 animate-fade-in cursor-pointer"
         style={{ animationDelay: `${animationDelay}s` }}
+        onClick={handleCardClick}
       >
         {/* Media Section */}
         {hasMedia && (
@@ -61,10 +62,7 @@ export default function PostCard({
             {/* Main media display */}
             {media.length === 1 ? (
               // Single media
-              <div 
-                className="aspect-[4/3] relative cursor-pointer group"
-                onClick={() => openModal(0)}
-              >
+              <div className="aspect-[4/3] relative group">
                 {firstMedia.type === 'video' ? (
                   <video 
                     src={firstMedia.url}
@@ -87,8 +85,7 @@ export default function PostCard({
                 {media.slice(0, 2).map((item, idx) => (
                   <div 
                     key={idx}
-                    className="aspect-square relative cursor-pointer group"
-                    onClick={() => openModal(idx)}
+                    className="aspect-square relative group"
                   >
                     {item.type === 'video' ? (
                       <video src={item.url} className="w-full h-full object-cover" muted playsInline />
@@ -105,8 +102,7 @@ export default function PostCard({
                 {media.slice(0, 4).map((item, idx) => (
                   <div 
                     key={idx}
-                    className="aspect-square relative cursor-pointer group"
-                    onClick={() => openModal(idx)}
+                    className="aspect-square relative group"
                   >
                     {item.type === 'video' ? (
                       <video src={item.url} className="w-full h-full object-cover" muted playsInline />
@@ -155,7 +151,10 @@ export default function PostCard({
             {/* Edit button for guest */}
             {canEdit && onEdit && !isAdmin && (
               <button
-                onClick={() => onEdit(post)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit(post);
+                }}
                 className="text-[var(--color-tennessee)] hover:text-[var(--color-tennessee-dark)] transition-colors p-1"
                 title="Edit your post"
               >
@@ -171,11 +170,21 @@ export default function PostCard({
             {post.message}
           </p>
 
+          {/* Read more hint */}
+          {post.message.length > 150 && (
+            <p className="text-xs text-[var(--color-tennessee)] mt-2 font-medium">
+              Click to read more...
+            </p>
+          )}
+
           {/* Admin controls */}
           {isAdmin && (
             <div className="mt-3 pt-3 border-t border-gray-100 flex items-center gap-2 flex-wrap">
               <button
-                onClick={() => onHide?.(post.id, !post.is_hidden)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onHide?.(post.id, !post.is_hidden);
+                }}
                 className={`text-xs px-2 py-1 rounded-md transition-colors ${
                   post.is_hidden 
                     ? 'bg-green-100 text-green-700 hover:bg-green-200' 
@@ -185,13 +194,17 @@ export default function PostCard({
                 {post.is_hidden ? 'Show' : 'Hide'}
               </button>
               <button
-                onClick={() => onEdit?.(post)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit?.(post);
+                }}
                 className="text-xs px-2 py-1 rounded-md bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors"
               >
                 Edit
               </button>
               <button
-                onClick={() => {
+                onClick={(e) => {
+                  e.stopPropagation();
                   if (confirm('Are you sure you want to delete this post? This cannot be undone.')) {
                     onDelete?.(post.id);
                   }
@@ -210,16 +223,12 @@ export default function PostCard({
         </div>
       </article>
 
-      {/* Media Modal */}
-      {hasMedia && (
-        <MediaModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          media={media}
-          startIndex={modalStartIndex}
-          guestName={post.guest_name}
-        />
-      )}
+      {/* Expanded Post Modal */}
+      <PostModal
+        isOpen={isExpanded}
+        onClose={() => setIsExpanded(false)}
+        post={post}
+      />
     </>
   );
 }
@@ -228,7 +237,7 @@ export default function PostCard({
 function MediaOverlay({ type }: { type: 'image' | 'video' }) {
   return (
     <>
-      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300" />
+      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300" />
       {type === 'video' && (
         <div className="absolute bottom-2 left-2 bg-gradient-to-r from-[var(--color-tennessee)] to-[var(--color-tennessee-dark)] text-white px-2 py-0.5 rounded text-xs flex items-center gap-1">
           <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">

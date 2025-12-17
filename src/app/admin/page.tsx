@@ -112,6 +112,38 @@ export default function AdminPage() {
   const handleDelete = async (postId: string) => {
     try {
       const supabase = getSupabase();
+      
+      // First, get the post to find associated media
+      const { data: post } = await supabase
+        .from('posts')
+        .select('media')
+        .eq('id', postId)
+        .single();
+
+      // Delete media files from storage
+      if (post?.media && post.media.length > 0) {
+        const filePaths = post.media
+          .map((item: { url: string }) => {
+            // Extract file path from URL
+            // URL format: https://xxx.supabase.co/storage/v1/object/public/media/posts/filename.jpg
+            const match = item.url.match(/\/media\/(.+)$/);
+            return match ? match[1] : null;
+          })
+          .filter(Boolean);
+
+        if (filePaths.length > 0) {
+          const { error: storageError } = await supabase.storage
+            .from('media')
+            .remove(filePaths);
+
+          if (storageError) {
+            console.error('Error deleting media files:', storageError);
+            // Continue with post deletion even if media deletion fails
+          }
+        }
+      }
+
+      // Delete the post
       const { error } = await supabase
         .from('posts')
         .delete()

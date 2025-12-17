@@ -90,6 +90,29 @@ export async function DELETE(
     const supabase = getSupabaseClient();
     const { id } = await params;
     
+    // First, get the post to find associated media
+    const { data: post } = await supabase
+      .from('posts')
+      .select('media')
+      .eq('id', id)
+      .single();
+
+    // Delete media files from storage
+    if (post?.media && post.media.length > 0) {
+      const filePaths = post.media
+        .map((item: { url: string }) => {
+          // Extract file path from URL
+          const match = item.url.match(/\/media\/(.+)$/);
+          return match ? match[1] : null;
+        })
+        .filter(Boolean);
+
+      if (filePaths.length > 0) {
+        await supabase.storage.from('media').remove(filePaths);
+      }
+    }
+
+    // Delete the post
     const { error } = await supabase
       .from('posts')
       .delete()
