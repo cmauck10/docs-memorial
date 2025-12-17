@@ -1,26 +1,15 @@
 'use client';
 
-import Link from 'next/link';
+import Header from '@/components/Header';
 import SubmitForm from '@/components/SubmitForm';
 
 export default function SubmitPage() {
   return (
-    <main className="min-h-screen py-8 px-4">
-      {/* Back Link */}
-      <div className="max-w-2xl mx-auto mb-6">
-        <Link 
-          href="/"
-          className="inline-flex items-center gap-2 text-[var(--color-warm-gray)] hover:text-[var(--color-tennessee)] transition-colors"
-        >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
-          Back to Memorial Wall
-        </Link>
-      </div>
+    <main className="min-h-screen flex flex-col">
+      <Header />
 
       {/* Form Container */}
-      <div className="max-w-2xl mx-auto">
+      <div className="flex-1 max-w-2xl w-full mx-auto px-4 py-8">
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-[rgba(255,130,0,0.1)]">
           {/* Header */}
           <div className="relative py-8 px-8 text-center overflow-hidden bg-gradient-to-br from-[var(--color-tennessee-pale)] to-white">
@@ -59,6 +48,15 @@ export default function SubmitPage() {
           You can edit your post from this device at any time.
         </p>
       </div>
+
+      {/* Footer */}
+      <footer className="py-4 border-t border-[var(--color-light-gray)]">
+        <div className="max-w-7xl mx-auto px-4 text-center">
+          <p className="text-[var(--color-warm-gray)] text-sm">
+            In loving memory of <a href="/about" className="text-[var(--color-tennessee)] font-medium hover:underline">Dr. Michael Mauck</a>
+          </p>
+        </div>
+      </footer>
     </main>
   );
 }

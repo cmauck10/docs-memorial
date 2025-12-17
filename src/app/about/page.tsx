@@ -1,27 +1,15 @@
 'use client';
 
 import Link from 'next/link';
+import Header from '@/components/Header';
 
 export default function AboutPage() {
   return (
-    <main className="min-h-screen">
-      {/* Header */}
-      <div className="header-gradient py-6 px-4">
-        <div className="max-w-4xl mx-auto">
-          <Link 
-            href="/"
-            className="inline-flex items-center gap-2 text-[var(--color-warm-gray)] hover:text-[var(--color-tennessee)] transition-colors"
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            Back to Memorial Wall
-          </Link>
-        </div>
-      </div>
+    <main className="min-h-screen flex flex-col">
+      <Header />
 
       {/* Content */}
-      <article className="max-w-4xl mx-auto px-4 py-8">
+      <article className="flex-1 max-w-4xl w-full mx-auto px-4 py-8">
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-[rgba(255,130,0,0.1)]">
           {/* Header Section */}
           <div className="relative py-10 px-8 text-center bg-gradient-to-br from-[var(--color-tennessee-pale)] to-white">
@@ -97,4 +85,3 @@ export default function AboutPage() {
     </main>
   );
 }
-

@@ -51,6 +51,17 @@ export default function Home() {
     <main className="min-h-screen flex flex-col">
       <Header />
 
+      {/* Hero Banner */}
+      <div className="bg-gradient-to-b from-[var(--color-tennessee-pale)] to-transparent py-8 px-4 text-center">
+        <h1 className="text-3xl md:text-4xl font-serif text-[var(--color-charcoal)] mb-2">
+          Dr. Michael Mauck
+        </h1>
+        <p className="text-[var(--color-warm-gray)] text-sm uppercase tracking-widest">
+          In Loving Memory
+        </p>
+        <div className="w-20 h-1 bg-gradient-to-r from-transparent via-[var(--color-tennessee)] to-transparent mx-auto mt-4 rounded-full" />
+      </div>
+
       {/* Memorial Wall Section */}
       <section className="flex-1 max-w-7xl w-full mx-auto px-4 py-6">
         {/* Loading State */}
