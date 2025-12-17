@@ -96,7 +96,13 @@ export default function Home() {
       <footer className="py-4 border-t border-[var(--color-light-gray)]">
         <div className="max-w-7xl mx-auto px-4 text-center">
           <p className="text-[var(--color-warm-gray)] text-sm">
-            In loving memory of <span className="text-[var(--color-tennessee)] font-medium">Dr. Michael Mauck</span>
+            In loving memory of{' '}
+            <a 
+              href="/about" 
+              className="text-[var(--color-tennessee)] font-medium hover:underline transition-colors"
+            >
+              Dr. Michael Mauck
+            </a>
           </p>
         </div>
       </footer>

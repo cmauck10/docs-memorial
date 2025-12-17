@@ -34,8 +34,11 @@ export default function Header() {
             </Link>
             <Link 
               href="/submit" 
-              className="btn-primary text-sm py-2 px-4"
+              className="btn-primary text-sm py-2 px-4 inline-flex items-center gap-1.5"
             >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+              </svg>
               Share a Memory
             </Link>
           </nav>
