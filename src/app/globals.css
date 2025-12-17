@@ -1,24 +1,26 @@
 @import "tailwindcss";
 
 :root {
-  --color-cream: #F5F0E8;
-  --color-warm-gray: #8B8680;
-  --color-charcoal: #2C2C2C;
-  --color-sage: #7D8B75;
-  --color-dusty-rose: #C4A4A4;
-  --color-gold: #B8A67A;
+  --color-tennessee: #FF8200;
+  --color-tennessee-dark: #E67300;
+  --color-tennessee-darker: #CC6600;
+  --color-tennessee-light: #FFA040;
+  --color-tennessee-pale: #FFF4E6;
+  --color-charcoal: #1C1C1C;
+  --color-warm-white: #FEFCF9;
+  --color-warm-gray: #6B6560;
+  --color-light-gray: #E8E4E0;
 }
 
 @theme inline {
   --font-serif: "Cormorant Garamond", Georgia, serif;
   --font-sans: "DM Sans", system-ui, sans-serif;
   
-  --color-cream: #F5F0E8;
-  --color-warm-gray: #8B8680;
-  --color-charcoal: #2C2C2C;
-  --color-sage: #7D8B75;
-  --color-dusty-rose: #C4A4A4;
-  --color-gold: #B8A67A;
+  --color-tennessee: #FF8200;
+  --color-tennessee-dark: #E67300;
+  --color-charcoal: #1C1C1C;
+  --color-warm-white: #FEFCF9;
+  --color-warm-gray: #6B6560;
 }
 
 * {
@@ -31,9 +33,10 @@ html {
 
 body {
   font-family: var(--font-sans);
-  background-color: var(--color-cream);
+  background: linear-gradient(180deg, var(--color-warm-white) 0%, #F5F0EB 100%);
   color: var(--color-charcoal);
   line-height: 1.6;
+  min-height: 100vh;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -47,16 +50,16 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-cream);
+  background: var(--color-warm-white);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-warm-gray);
+  background: var(--color-tennessee);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-charcoal);
+  background: var(--color-tennessee-dark);
 }
 
 /* Animations */
@@ -99,13 +102,13 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Modal backdrop */
 .modal-backdrop {
-  background: rgba(44, 44, 44, 0.7);
-  backdrop-filter: blur(4px);
+  background: rgba(28, 28, 28, 0.8);
+  backdrop-filter: blur(8px);
 }
 
 /* Focus styles */
 input:focus, textarea:focus, button:focus {
-  outline: 2px solid var(--color-sage);
+  outline: 2px solid var(--color-tennessee);
   outline-offset: 2px;
 }
 
@@ -118,48 +121,51 @@ input:focus, textarea:focus, button:focus {
 /* Post card hover effect */
 .post-card {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid rgba(255, 130, 0, 0.1);
 }
 
 .post-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 12px 40px rgba(255, 130, 0, 0.15);
 }
 
 /* Button styles */
 .btn-primary {
-  background: linear-gradient(135deg, var(--color-sage) 0%, #6B7A63 100%);
+  background: linear-gradient(135deg, var(--color-tennessee) 0%, var(--color-tennessee-dark) 100%);
   color: white;
   padding: 0.75rem 1.5rem;
   border-radius: 8px;
-  font-weight: 500;
+  font-weight: 600;
   transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(255, 130, 0, 0.3);
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 20px rgba(125, 139, 117, 0.4);
+  box-shadow: 0 6px 25px rgba(255, 130, 0, 0.4);
+  background: linear-gradient(135deg, var(--color-tennessee-light) 0%, var(--color-tennessee) 100%);
 }
 
 .btn-secondary {
   background: transparent;
-  border: 2px solid var(--color-charcoal);
-  color: var(--color-charcoal);
+  border: 2px solid var(--color-tennessee);
+  color: var(--color-tennessee);
   padding: 0.75rem 1.5rem;
   border-radius: 8px;
-  font-weight: 500;
+  font-weight: 600;
   transition: all 0.3s ease;
 }
 
 .btn-secondary:hover {
-  background: var(--color-charcoal);
-  color: var(--color-cream);
+  background: var(--color-tennessee);
+  color: white;
 }
 
 /* Input styles */
 .input-field {
   width: 100%;
   padding: 0.875rem 1rem;
-  border: 2px solid transparent;
+  border: 2px solid var(--color-light-gray);
   border-radius: 8px;
   background: white;
   transition: all 0.3s ease;
@@ -167,8 +173,8 @@ input:focus, textarea:focus, button:focus {
 }
 
 .input-field:focus {
-  border-color: var(--color-sage);
-  box-shadow: 0 0 0 4px rgba(125, 139, 117, 0.1);
+  border-color: var(--color-tennessee);
+  box-shadow: 0 0 0 4px rgba(255, 130, 0, 0.1);
 }
 
 .input-field::placeholder {
@@ -177,6 +183,21 @@ input:focus, textarea:focus, button:focus {
 
 /* Decorative line */
 .decorative-line {
-  height: 2px;
-  background: linear-gradient(90deg, transparent, var(--color-gold), transparent);
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--color-tennessee), transparent);
+  border-radius: 2px;
+}
+
+/* Orange accent glow */
+.orange-glow {
+  box-shadow: 0 0 60px rgba(255, 130, 0, 0.2);
+}
+
+/* Header gradient background */
+.header-gradient {
+  background: linear-gradient(180deg, 
+    rgba(255, 130, 0, 0.08) 0%, 
+    rgba(255, 130, 0, 0.02) 50%,
+    transparent 100%
+  );
 }

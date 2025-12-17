@@ -74,7 +74,7 @@ export default function MediaModal({
       {/* Close button */}
       <button
         onClick={onClose}
-        className="absolute top-4 right-4 text-white hover:text-[var(--color-dusty-rose)] transition-colors p-2 z-10"
+        className="absolute top-4 right-4 text-white hover:text-[var(--color-tennessee)] transition-colors p-2 z-10"
         aria-label="Close modal"
       >
         <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -84,7 +84,7 @@ export default function MediaModal({
 
       {/* Counter */}
       {hasMultiple && (
-        <div className="absolute top-4 left-4 text-white text-sm bg-black/40 px-3 py-1 rounded-full">
+        <div className="absolute top-4 left-4 text-white text-sm bg-gradient-to-r from-[var(--color-tennessee)] to-[var(--color-tennessee-dark)] px-3 py-1 rounded-full shadow-lg">
           {currentIndex + 1} / {media.length}
         </div>
       )}
@@ -97,7 +97,7 @@ export default function MediaModal({
               e.stopPropagation();
               goToPrevious();
             }}
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:text-[var(--color-dusty-rose)] transition-colors p-2 bg-black/30 rounded-full hover:bg-black/50"
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:text-[var(--color-tennessee)] transition-colors p-2 bg-black/30 rounded-full hover:bg-black/50"
             aria-label="Previous"
           >
             <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -109,7 +109,7 @@ export default function MediaModal({
               e.stopPropagation();
               goToNext();
             }}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:text-[var(--color-dusty-rose)] transition-colors p-2 bg-black/30 rounded-full hover:bg-black/50"
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:text-[var(--color-tennessee)] transition-colors p-2 bg-black/30 rounded-full hover:bg-black/50"
             aria-label="Next"
           >
             <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -144,9 +144,9 @@ export default function MediaModal({
           )}
           
           {/* Caption */}
-          <div className="p-4 text-center">
+          <div className="p-4 text-center border-t border-[var(--color-light-gray)]">
             <p className="text-[var(--color-warm-gray)] text-sm">
-              Shared by <span className="font-medium text-[var(--color-charcoal)]">{guestName}</span>
+              Shared by <span className="font-medium text-[var(--color-tennessee)]">{guestName}</span>
             </p>
           </div>
         </div>
@@ -154,7 +154,7 @@ export default function MediaModal({
 
       {/* Thumbnail strip */}
       {hasMultiple && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 bg-black/40 p-2 rounded-lg">
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 bg-black/60 p-2 rounded-lg backdrop-blur-sm">
           {media.map((item, index) => (
             <button
               key={index}
@@ -164,7 +164,7 @@ export default function MediaModal({
               }}
               className={`w-12 h-12 rounded overflow-hidden transition-all ${
                 index === currentIndex 
-                  ? 'ring-2 ring-white ring-offset-2 ring-offset-black/40' 
+                  ? 'ring-2 ring-[var(--color-tennessee)] ring-offset-2 ring-offset-black/60' 
                   : 'opacity-60 hover:opacity-100'
               }`}
             >

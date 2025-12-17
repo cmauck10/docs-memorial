@@ -148,11 +148,11 @@ export default function AdminPage() {
   // Login Form
   if (!isAuthenticated) {
     return (
-      <main className="min-h-screen flex items-center justify-center px-4">
+      <main className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-[var(--color-warm-white)] to-[var(--color-tennessee-pale)]">
         <div className="max-w-md w-full">
-          <div className="bg-white rounded-2xl shadow-lg p-8">
+          <div className="bg-white rounded-2xl shadow-xl p-8 border border-[rgba(255,130,0,0.1)]">
             <div className="text-center mb-8">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[var(--color-charcoal)] flex items-center justify-center">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-[var(--color-tennessee)] to-[var(--color-tennessee-dark)] flex items-center justify-center shadow-lg">
                 <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
@@ -214,7 +214,7 @@ export default function AdminPage() {
             <div className="mt-6 text-center">
               <a 
                 href="/" 
-                className="text-sm text-[var(--color-warm-gray)] hover:text-[var(--color-charcoal)] transition-colors"
+                className="text-sm text-[var(--color-warm-gray)] hover:text-[var(--color-tennessee)] transition-colors"
               >
                 ← Return to Memorial Wall
               </a>
@@ -229,26 +229,29 @@ export default function AdminPage() {
   return (
     <main className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <h1 className="text-xl font-serif text-[var(--color-charcoal)]">
+      <header className="bg-white shadow-sm sticky top-0 z-40 border-b border-[rgba(255,130,0,0.1)]">
+        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--color-tennessee)] to-[var(--color-tennessee-dark)] flex items-center justify-center">
+              <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </div>
+            <h1 className="text-lg font-serif text-[var(--color-charcoal)]">
               Admin Dashboard
             </h1>
-            <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full">
-              Authenticated
-            </span>
           </div>
           <div className="flex items-center gap-4">
             <a 
               href="/" 
-              className="text-sm text-[var(--color-warm-gray)] hover:text-[var(--color-charcoal)] transition-colors"
+              className="text-sm text-[var(--color-warm-gray)] hover:text-[var(--color-tennessee)] transition-colors"
             >
-              View Public Site
+              View Site
             </a>
             <button
               onClick={handleLogout}
-              className="text-sm px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+              className="text-sm px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
             >
               Sign Out
             </button>
@@ -256,43 +259,42 @@ export default function AdminPage() {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 py-6">
         {/* Stats & Filters */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
+        <div className="bg-white rounded-xl shadow-sm p-4 mb-6 border border-[rgba(255,130,0,0.1)]">
           <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="flex items-center gap-8">
-              <div>
-                <p className="text-sm text-[var(--color-warm-gray)]">Total Posts</p>
+            <div className="flex items-center gap-6">
+              <div className="text-center">
                 <p className="text-2xl font-semibold text-[var(--color-charcoal)]">{posts.length}</p>
+                <p className="text-xs text-[var(--color-warm-gray)]">Total</p>
               </div>
-              <div>
-                <p className="text-sm text-[var(--color-warm-gray)]">Visible</p>
+              <div className="text-center">
                 <p className="text-2xl font-semibold text-green-600">
                   {posts.filter(p => !p.is_hidden).length}
                 </p>
+                <p className="text-xs text-[var(--color-warm-gray)]">Visible</p>
               </div>
-              <div>
-                <p className="text-sm text-[var(--color-warm-gray)]">Hidden</p>
+              <div className="text-center">
                 <p className="text-2xl font-semibold text-yellow-600">
                   {posts.filter(p => p.is_hidden).length}
                 </p>
+                <p className="text-xs text-[var(--color-warm-gray)]">Hidden</p>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-sm text-[var(--color-warm-gray)]">Filter:</span>
               <select
                 value={filter}
                 onChange={(e) => setFilter(e.target.value as 'all' | 'visible' | 'hidden')}
-                className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-sage)]"
+                className="px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-tennessee)]"
               >
                 <option value="all">All Posts</option>
-                <option value="visible">Visible Only</option>
-                <option value="hidden">Hidden Only</option>
+                <option value="visible">Visible</option>
+                <option value="hidden">Hidden</option>
               </select>
               <button
                 onClick={fetchAllPosts}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
                 title="Refresh"
               >
                 <svg className="w-5 h-5 text-[var(--color-warm-gray)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -306,15 +308,15 @@ export default function AdminPage() {
         {/* Posts Grid */}
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20">
-            <div className="w-12 h-12 border-4 border-[var(--color-sage)] border-t-transparent rounded-full animate-spin mb-4" />
+            <div className="w-12 h-12 border-4 border-[var(--color-tennessee)] border-t-transparent rounded-full animate-spin mb-4" />
             <p className="text-[var(--color-warm-gray)]">Loading posts...</p>
           </div>
         ) : filteredPosts.length === 0 ? (
-          <div className="text-center py-20 bg-white rounded-xl">
+          <div className="text-center py-20 bg-white rounded-xl border border-[rgba(255,130,0,0.1)]">
             <p className="text-[var(--color-warm-gray)]">No posts found.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {filteredPosts.map((post, index) => (
               <div key={post.id} className={post.is_hidden ? 'opacity-60' : ''}>
                 <PostCard 
@@ -335,10 +337,10 @@ export default function AdminPage() {
       {showEditModal && editingPost && (
         <div className="fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4">
           <div 
-            className="bg-[var(--color-cream)] rounded-2xl shadow-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto animate-fade-in-scale"
+            className="bg-[var(--color-warm-white)] rounded-2xl shadow-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto animate-fade-in-scale"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="p-6 border-b border-[var(--color-warm-gray)]/20">
+            <div className="p-6 border-b border-[var(--color-light-gray)]">
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-serif text-[var(--color-charcoal)]">
                   Edit Post

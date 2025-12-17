@@ -34,16 +34,15 @@ export default function PostCard({
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
     });
   };
 
   const media = post.media || [];
   const hasMedia = media.length > 0;
   const firstMedia = media[0];
-  const additionalCount = media.length - 1;
 
   const openModal = (index: number = 0) => {
     setModalStartIndex(index);
@@ -53,7 +52,7 @@ export default function PostCard({
   return (
     <>
       <article 
-        className="post-card bg-white rounded-2xl overflow-hidden shadow-sm opacity-0 animate-fade-in"
+        className="post-card bg-white rounded-xl overflow-hidden shadow-sm opacity-0 animate-fade-in"
         style={{ animationDelay: `${animationDelay}s` }}
       >
         {/* Media Section */}
@@ -63,7 +62,7 @@ export default function PostCard({
             {media.length === 1 ? (
               // Single media
               <div 
-                className="media-container relative cursor-pointer group"
+                className="aspect-[4/3] relative cursor-pointer group"
                 onClick={() => openModal(0)}
               >
                 {firstMedia.type === 'video' ? (
@@ -132,7 +131,7 @@ export default function PostCard({
                       {/* Show +N overlay on last visible item if there are more */}
                       {idx === 1 && media.length > 3 && (
                         <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                          <span className="text-white text-2xl font-semibold">
+                          <span className="text-white text-xl font-semibold">
                             +{media.length - 3}
                           </span>
                         </div>
@@ -145,7 +144,7 @@ export default function PostCard({
 
             {/* Media count badge */}
             {media.length > 1 && (
-              <div className="absolute bottom-2 right-2 bg-black/60 text-white px-2 py-1 rounded-full text-xs flex items-center gap-1">
+              <div className="absolute bottom-2 right-2 bg-gradient-to-r from-[var(--color-tennessee)] to-[var(--color-tennessee-dark)] text-white px-2 py-1 rounded-full text-xs flex items-center gap-1 shadow-md">
                 <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
@@ -156,14 +155,14 @@ export default function PostCard({
         )}
 
         {/* Content Section */}
-        <div className="p-6">
+        <div className="p-4">
           {/* Header with name and date */}
-          <div className="flex items-start justify-between mb-4">
+          <div className="flex items-start justify-between mb-2">
             <div>
-              <h3 className="font-serif text-xl text-[var(--color-charcoal)] font-medium">
+              <h3 className="font-serif text-lg text-[var(--color-charcoal)] font-medium leading-tight">
                 {post.guest_name}
               </h3>
-              <time className="text-sm text-[var(--color-warm-gray)]">
+              <time className="text-xs text-[var(--color-warm-gray)]">
                 {formatDate(post.created_at)}
               </time>
             </div>
@@ -172,10 +171,10 @@ export default function PostCard({
             {canEdit && onEdit && !isAdmin && (
               <button
                 onClick={() => onEdit(post)}
-                className="text-[var(--color-sage)] hover:text-[var(--color-charcoal)] transition-colors p-2"
+                className="text-[var(--color-tennessee)] hover:text-[var(--color-tennessee-dark)] transition-colors p-1"
                 title="Edit your post"
               >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                 </svg>
               </button>
@@ -183,16 +182,16 @@ export default function PostCard({
           </div>
 
           {/* Message */}
-          <p className="text-[var(--color-charcoal)] leading-relaxed whitespace-pre-wrap">
+          <p className="text-sm text-[var(--color-charcoal)] leading-relaxed whitespace-pre-wrap line-clamp-4">
             {post.message}
           </p>
 
           {/* Admin controls */}
           {isAdmin && (
-            <div className="mt-4 pt-4 border-t border-gray-100 flex items-center gap-3">
+            <div className="mt-3 pt-3 border-t border-gray-100 flex items-center gap-2 flex-wrap">
               <button
                 onClick={() => onHide?.(post.id, !post.is_hidden)}
-                className={`text-sm px-3 py-1.5 rounded-lg transition-colors ${
+                className={`text-xs px-2 py-1 rounded-md transition-colors ${
                   post.is_hidden 
                     ? 'bg-green-100 text-green-700 hover:bg-green-200' 
                     : 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
@@ -202,7 +201,7 @@ export default function PostCard({
               </button>
               <button
                 onClick={() => onEdit?.(post)}
-                className="text-sm px-3 py-1.5 rounded-lg bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors"
+                className="text-xs px-2 py-1 rounded-md bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors"
               >
                 Edit
               </button>
@@ -212,13 +211,13 @@ export default function PostCard({
                     onDelete?.(post.id);
                   }
                 }}
-                className="text-sm px-3 py-1.5 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 transition-colors"
+                className="text-xs px-2 py-1 rounded-md bg-red-100 text-red-700 hover:bg-red-200 transition-colors"
               >
                 Delete
               </button>
               {post.is_hidden && (
                 <span className="text-xs text-[var(--color-warm-gray)] ml-auto">
-                  Hidden from public
+                  Hidden
                 </span>
               )}
             </div>
@@ -246,7 +245,7 @@ function MediaOverlay({ type }: { type: 'image' | 'video' }) {
     <>
       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300" />
       {type === 'video' && (
-        <div className="absolute bottom-2 left-2 bg-black/60 text-white px-2 py-1 rounded text-xs flex items-center gap-1">
+        <div className="absolute bottom-2 left-2 bg-gradient-to-r from-[var(--color-tennessee)] to-[var(--color-tennessee-dark)] text-white px-2 py-0.5 rounded text-xs flex items-center gap-1">
           <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
             <path d="M8 5v14l11-7z" />
           </svg>

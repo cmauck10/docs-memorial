@@ -48,40 +48,30 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen flex flex-col">
       <Header />
 
       {/* Memorial Wall Section */}
-      <section className="max-w-7xl mx-auto px-4 pb-20">
-        {/* Section Header */}
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-serif text-[var(--color-charcoal)] mb-3">
-            Tributes & Memories
-          </h2>
-          <p className="text-[var(--color-warm-gray)] max-w-xl mx-auto">
-            A collection of cherished memories shared by those whose lives were touched by Dr. Mauck.
-          </p>
-        </div>
-
+      <section className="flex-1 max-w-7xl w-full mx-auto px-4 py-6">
         {/* Loading State */}
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20">
-            <div className="w-12 h-12 border-4 border-[var(--color-sage)] border-t-transparent rounded-full animate-spin mb-4" />
+            <div className="w-12 h-12 border-4 border-[var(--color-tennessee)] border-t-transparent rounded-full animate-spin mb-4" />
             <p className="text-[var(--color-warm-gray)]">Loading memories...</p>
           </div>
         ) : posts.length === 0 ? (
           /* Empty State */
-          <div className="text-center py-20">
-            <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-[var(--color-sage)]/10 flex items-center justify-center">
-              <svg className="w-12 h-12 text-[var(--color-sage)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="text-center py-16">
+            <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-[var(--color-tennessee)] to-[var(--color-tennessee-dark)] flex items-center justify-center shadow-lg orange-glow">
+              <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
               </svg>
             </div>
             <h3 className="text-2xl font-serif text-[var(--color-charcoal)] mb-2">
               Be the First to Share
             </h3>
-            <p className="text-[var(--color-warm-gray)] mb-8 max-w-md mx-auto">
-              No memories have been shared yet. Start the tribute by sharing your cherished memories of Dr. Mauck.
+            <p className="text-[var(--color-warm-gray)] mb-6 max-w-md mx-auto">
+              No memories have been shared yet. Start the tribute by sharing your cherished memories.
             </p>
             <a href="/submit" className="btn-primary inline-block">
               Share a Memory
@@ -89,13 +79,13 @@ export default function Home() {
           </div>
         ) : (
           /* Posts Grid */
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             {posts.map((post, index) => (
               <PostCard 
                 key={post.id} 
                 post={post} 
                 onEdit={handleEdit}
-                animationDelay={index * 0.1}
+                animationDelay={index * 0.08}
               />
             ))}
           </div>
@@ -103,13 +93,10 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-[var(--color-warm-gray)]/20 py-8">
+      <footer className="py-4 border-t border-[var(--color-light-gray)]">
         <div className="max-w-7xl mx-auto px-4 text-center">
           <p className="text-[var(--color-warm-gray)] text-sm">
-            In loving memory of Dr. Michael Mauck
-          </p>
-          <p className="text-[var(--color-warm-gray)]/60 text-xs mt-2">
-            Forever in our hearts
+            In loving memory of <span className="text-[var(--color-tennessee)] font-medium">Dr. Michael Mauck</span>
           </p>
         </div>
       </footer>
@@ -118,10 +105,10 @@ export default function Home() {
       {showEditModal && editingPost && (
         <div className="fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4">
           <div 
-            className="bg-[var(--color-cream)] rounded-2xl shadow-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto animate-fade-in-scale"
+            className="bg-[var(--color-warm-white)] rounded-2xl shadow-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto animate-fade-in-scale"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="p-6 border-b border-[var(--color-warm-gray)]/20">
+            <div className="p-6 border-b border-[var(--color-light-gray)]">
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-serif text-[var(--color-charcoal)]">
                   Edit Your Memory
