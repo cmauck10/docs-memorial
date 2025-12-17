@@ -100,45 +100,30 @@ export default function PostCard({
                 ))}
               </div>
             ) : (
-              // Three or more - grid layout
+              // Three or more - 2x2 grid layout showing 4 images
               <div className="grid grid-cols-2 gap-0.5">
-                <div 
-                  className="row-span-2 relative cursor-pointer group"
-                  onClick={() => openModal(0)}
-                >
-                  <div className="aspect-[3/4] h-full">
-                    {firstMedia.type === 'video' ? (
-                      <video src={firstMedia.url} className="w-full h-full object-cover" muted playsInline />
+                {media.slice(0, 4).map((item, idx) => (
+                  <div 
+                    key={idx}
+                    className="aspect-square relative cursor-pointer group"
+                    onClick={() => openModal(idx)}
+                  >
+                    {item.type === 'video' ? (
+                      <video src={item.url} className="w-full h-full object-cover" muted playsInline />
                     ) : (
-                      <img src={firstMedia.url} alt="" className="w-full h-full object-cover" />
+                      <img src={item.url} alt="" className="w-full h-full object-cover" />
+                    )}
+                    <MediaOverlay type={item.type} />
+                    {/* Show +N overlay on last visible item if there are more */}
+                    {idx === 3 && media.length > 4 && (
+                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                        <span className="text-white text-xl font-semibold">
+                          +{media.length - 4}
+                        </span>
+                      </div>
                     )}
                   </div>
-                  <MediaOverlay type={firstMedia.type} />
-                </div>
-                <div className="flex flex-col gap-0.5">
-                  {media.slice(1, 3).map((item, idx) => (
-                    <div 
-                      key={idx}
-                      className="aspect-square relative cursor-pointer group"
-                      onClick={() => openModal(idx + 1)}
-                    >
-                      {item.type === 'video' ? (
-                        <video src={item.url} className="w-full h-full object-cover" muted playsInline />
-                      ) : (
-                        <img src={item.url} alt="" className="w-full h-full object-cover" />
-                      )}
-                      <MediaOverlay type={item.type} />
-                      {/* Show +N overlay on last visible item if there are more */}
-                      {idx === 1 && media.length > 3 && (
-                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                          <span className="text-white text-xl font-semibold">
-                            +{media.length - 3}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
+                ))}
               </div>
             )}
 
