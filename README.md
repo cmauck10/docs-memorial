@@ -1,4 +1,4 @@
 # Docs Memorial
 
-A memorial documentation project.
+A memorial for the amazing Dr. Michael Mauck.
 
