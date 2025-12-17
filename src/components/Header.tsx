@@ -9,7 +9,7 @@ export default function Header() {
   const isActive = (path: string) => pathname === path;
 
   return (
-    <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-[rgba(255,130,0,0.1)]">
+    <header className="bg-white border-b border-[rgba(255,130,0,0.1)] fixed top-0 left-0 right-0 z-50">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between h-14">
           {/* Logo / Title */}

@@ -52,14 +52,25 @@ export default function Home() {
       <Header />
 
       {/* Hero Banner */}
-      <div className="bg-gradient-to-b from-[var(--color-tennessee-pale)] to-transparent py-8 px-4 text-center">
-        <h1 className="text-3xl md:text-4xl font-serif text-[var(--color-charcoal)] mb-2">
-          Dr. Michael Mauck
-        </h1>
-        <p className="text-[var(--color-warm-gray)] text-sm uppercase tracking-widest">
-          In Loving Memory
-        </p>
-        <div className="w-20 h-1 bg-gradient-to-r from-transparent via-[var(--color-tennessee)] to-transparent mx-auto mt-4 rounded-full" />
+      <div className="bg-gradient-to-b from-[var(--color-tennessee-pale)] to-transparent py-8 px-4">
+        <div className="flex items-center justify-center gap-4">
+          <div className="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden border-4 border-white shadow-lg flex-shrink-0">
+            <img 
+              src="/michael-mauck.jpeg" 
+              alt="Dr. Michael Mauck"
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div className="text-left">
+            <h1 className="text-2xl md:text-4xl font-serif text-[var(--color-charcoal)] mb-1">
+              Dr. Michael Mauck
+            </h1>
+            <p className="text-[var(--color-warm-gray)] text-sm uppercase tracking-widest">
+              In Loving Memory
+            </p>
+            <div className="w-20 h-1 bg-gradient-to-r from-[var(--color-tennessee)] to-transparent mt-2 rounded-full" />
+          </div>
+        </div>
       </div>
 
       {/* Memorial Wall Section */}

@@ -19,10 +19,12 @@ export default function AboutPage() {
             </div>
             
             <div className="relative z-10">
-              <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-[var(--color-tennessee)] to-[var(--color-tennessee-dark)] flex items-center justify-center shadow-xl orange-glow">
-                <svg className="w-10 h-10 text-white" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-                </svg>
+              <div className="w-28 h-28 md:w-32 md:h-32 mx-auto mb-6 rounded-full overflow-hidden border-4 border-white shadow-xl">
+                <img 
+                  src="/michael-mauck.jpeg" 
+                  alt="Dr. Michael Mauck"
+                  className="w-full h-full object-cover"
+                />
               </div>
               
               <h1 className="text-3xl md:text-4xl font-serif text-[var(--color-charcoal)] mb-2">
