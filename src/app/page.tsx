@@ -1,51 +1,117 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { getSupabase, Post } from '@/lib/supabase';
 import Header from '@/components/Header';
 import PostCard from '@/components/PostCard';
-import SubmitForm from '@/components/SubmitForm';
+import dynamic from 'next/dynamic';
+
+// Lazy load the edit form modal
+const SubmitForm = dynamic(() => import('@/components/SubmitForm'), {
+  ssr: false,
+  loading: () => <div className="animate-pulse bg-gray-100 h-96 rounded-lg" />
+});
+
+const POSTS_PER_PAGE = 12;
 
 export default function Home() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [totalCount, setTotalCount] = useState(0);
   const [editingPost, setEditingPost] = useState<Post | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
 
-  const fetchPosts = async () => {
+  const fetchPosts = useCallback(async (offset = 0, append = false) => {
     try {
       const supabase = getSupabase();
-      const { data, error } = await supabase
+      const { data, error, count } = await supabase
         .from('posts')
-        .select('*')
+        .select('*', { count: 'exact' })
         .eq('is_hidden', false)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .range(offset, offset + POSTS_PER_PAGE - 1);
 
       if (error) {
         console.error('Error fetching posts:', error);
       } else {
-        setPosts(data || []);
+        const newPosts = data || [];
+        if (append) {
+          // Deduplicate posts when appending to avoid key conflicts
+          setPosts(prev => {
+            const existingIds = new Set(prev.map(p => p.id));
+            const uniqueNewPosts = newPosts.filter(p => !existingIds.has(p.id));
+            return [...prev, ...uniqueNewPosts];
+          });
+        } else {
+          setPosts(newPosts);
+        }
+        setTotalCount(count || 0);
+        setHasMore(count ? offset + POSTS_PER_PAGE < count : false);
       }
     } catch (err) {
       console.error('Error:', err);
     }
     setLoading(false);
-  };
+    setLoadingMore(false);
+  }, []);
 
   useEffect(() => {
     fetchPosts();
-  }, []);
+  }, [fetchPosts]);
 
-  const handleEdit = (post: Post) => {
+  const loadMore = useCallback(() => {
+    if (loadingMore || !hasMore) return;
+    setLoadingMore(true);
+    fetchPosts(posts.length, true);
+  }, [loadingMore, hasMore, posts.length, fetchPosts]);
+
+  // Infinite scroll handler
+  useEffect(() => {
+    const handleScroll = () => {
+      if (
+        window.innerHeight + window.scrollY >= document.body.offsetHeight - 1000 &&
+        hasMore &&
+        !loadingMore
+      ) {
+        loadMore();
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [loadMore, hasMore, loadingMore]);
+
+  const handleEdit = useCallback((post: Post) => {
     setEditingPost(post);
     setShowEditModal(true);
-  };
+  }, []);
 
-  const handleEditSuccess = () => {
+  const handleEditSuccess = useCallback(() => {
     setShowEditModal(false);
     setEditingPost(null);
     fetchPosts();
-  };
+  }, [fetchPosts]);
+
+  const handleCloseModal = useCallback(() => {
+    setShowEditModal(false);
+  }, []);
+
+  // Memoize the posts grid to prevent unnecessary re-renders
+  const postsGrid = useMemo(() => (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+      {posts.map((post, index) => (
+        <PostCard 
+          key={post.id} 
+          post={post} 
+          onEdit={handleEdit}
+          animationDelay={Math.min(index * 0.05, 0.3)} // Cap animation delay
+          priority={index < 4} // First 4 cards get priority loading
+        />
+      ))}
+    </div>
+  ), [posts, handleEdit]);
 
   return (
     <main className="min-h-screen flex flex-col">
@@ -59,6 +125,8 @@ export default function Home() {
               src="/michael-mauck.jpeg" 
               alt="Dr. Michael Mauck"
               className="w-full h-full object-cover"
+              loading="eager"
+              decoding="async"
             />
           </div>
           <div className="text-left">
@@ -103,17 +171,23 @@ export default function Home() {
             </a>
           </div>
         ) : (
-          /* Posts Grid */
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-            {posts.map((post, index) => (
-              <PostCard 
-                key={post.id} 
-                post={post} 
-                onEdit={handleEdit}
-                animationDelay={index * 0.08}
-              />
-            ))}
-          </div>
+          <>
+            {postsGrid}
+            
+            {/* Load more indicator */}
+            {loadingMore && (
+              <div className="flex justify-center py-8">
+                <div className="w-8 h-8 border-4 border-[var(--color-tennessee)] border-t-transparent rounded-full animate-spin" />
+              </div>
+            )}
+            
+            {/* End of posts indicator */}
+            {!hasMore && posts.length > POSTS_PER_PAGE && (
+              <p className="text-center text-[var(--color-warm-gray)] text-sm py-8">
+                You&apos;ve seen all {posts.length} memories
+              </p>
+            )}
+          </>
         )}
       </section>
 
@@ -145,7 +219,7 @@ export default function Home() {
                   Edit Your Memory
                 </h2>
                 <button
-                  onClick={() => setShowEditModal(false)}
+                  onClick={handleCloseModal}
                   className="text-[var(--color-warm-gray)] hover:text-[var(--color-charcoal)] transition-colors"
                 >
                   <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -157,7 +231,7 @@ export default function Home() {
             <div className="p-6">
               <SubmitForm 
                 editPost={editingPost}
-                onCancel={() => setShowEditModal(false)}
+                onCancel={handleCloseModal}
                 onSuccess={handleEditSuccess}
               />
             </div>

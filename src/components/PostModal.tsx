@@ -1,8 +1,15 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Post, MediaItem } from '@/lib/supabase';
-import MediaModal from './MediaModal';
+import { useEffect, useState, useCallback, memo } from 'react';
+import { Post } from '@/lib/supabase';
+import { LazyMedia } from './LazyMedia';
+import dynamic from 'next/dynamic';
+
+// Lazy load the full-screen media modal
+const MediaModal = dynamic(() => import('./MediaModal'), {
+  ssr: false,
+  loading: () => null
+});
 
 interface PostModalProps {
   isOpen: boolean;
@@ -10,7 +17,7 @@ interface PostModalProps {
   post: Post;
 }
 
-export default function PostModal({ isOpen, onClose, post }: PostModalProps) {
+function PostModalComponent({ isOpen, onClose, post }: PostModalProps) {
   const [mediaModalOpen, setMediaModalOpen] = useState(false);
   const [mediaStartIndex, setMediaStartIndex] = useState(0);
 
@@ -30,12 +37,7 @@ export default function PostModal({ isOpen, onClose, post }: PostModalProps) {
     };
   }, [isOpen, onClose, mediaModalOpen]);
 
-  if (!isOpen) return null;
-
-  const media = post.media || [];
-  const hasMedia = media.length > 0;
-
-  const formatDate = (dateString: string) => {
+  const formatDate = useCallback((dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
       weekday: 'long',
@@ -43,12 +45,21 @@ export default function PostModal({ isOpen, onClose, post }: PostModalProps) {
       month: 'long',
       day: 'numeric'
     });
-  };
+  }, []);
 
-  const openMediaModal = (index: number) => {
+  const openMediaModal = useCallback((index: number) => {
     setMediaStartIndex(index);
     setMediaModalOpen(true);
-  };
+  }, []);
+
+  const closeMediaModal = useCallback(() => {
+    setMediaModalOpen(false);
+  }, []);
+
+  if (!isOpen) return null;
+
+  const media = post.media || [];
+  const hasMedia = media.length > 0;
 
   return (
     <>
@@ -57,7 +68,7 @@ export default function PostModal({ isOpen, onClose, post }: PostModalProps) {
         onClick={onClose}
       >
         <div 
-          className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden animate-fade-in-scale flex flex-col"
+          className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden animate-fade-in-scale flex flex-col relative"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Close button */}
@@ -83,20 +94,12 @@ export default function PostModal({ isOpen, onClose, post }: PostModalProps) {
                       className="flex-shrink-0 w-40 h-40 md:w-48 md:h-48 rounded-xl overflow-hidden cursor-pointer group relative"
                       onClick={() => openMediaModal(index)}
                     >
-                      {item.type === 'video' ? (
-                        <video 
-                          src={item.url} 
-                          className="w-full h-full object-cover"
-                          muted 
-                          playsInline 
-                        />
-                      ) : (
-                        <img 
-                          src={item.url} 
-                          alt="" 
-                          className="w-full h-full object-cover"
-                        />
-                      )}
+                      <LazyMedia
+                        src={item.url}
+                        type={item.type}
+                        className="w-full h-full"
+                        priority={index < 3} // First 3 get priority
+                      />
                       {/* Hover overlay */}
                       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all flex items-center justify-center">
                         <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 rounded-full p-2">
@@ -152,10 +155,10 @@ export default function PostModal({ isOpen, onClose, post }: PostModalProps) {
       </div>
 
       {/* Media fullscreen modal */}
-      {hasMedia && (
+      {mediaModalOpen && hasMedia && (
         <MediaModal
           isOpen={mediaModalOpen}
-          onClose={() => setMediaModalOpen(false)}
+          onClose={closeMediaModal}
           media={media}
           startIndex={mediaStartIndex}
           guestName={post.guest_name}
@@ -165,3 +168,4 @@ export default function PostModal({ isOpen, onClose, post }: PostModalProps) {
   );
 }
 
+export default memo(PostModalComponent);

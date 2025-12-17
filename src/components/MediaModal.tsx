@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, memo } from 'react';
 import { MediaItem } from '@/lib/supabase';
 
 interface MediaModalProps {
@@ -11,7 +11,7 @@ interface MediaModalProps {
   guestName: string;
 }
 
-export default function MediaModal({ 
+function MediaModalComponent({ 
   isOpen, 
   onClose, 
   media,
@@ -19,12 +19,15 @@ export default function MediaModal({
   guestName 
 }: MediaModalProps) {
   const [currentIndex, setCurrentIndex] = useState(startIndex);
+  const [isLoading, setIsLoading] = useState(true);
 
   const goToPrevious = useCallback(() => {
+    setIsLoading(true);
     setCurrentIndex((prev) => (prev === 0 ? media.length - 1 : prev - 1));
   }, [media.length]);
 
   const goToNext = useCallback(() => {
+    setIsLoading(true);
     setCurrentIndex((prev) => (prev === media.length - 1 ? 0 : prev + 1));
   }, [media.length]);
 
@@ -61,6 +64,10 @@ export default function MediaModal({
     };
   }, [isOpen, onClose, goToPrevious, goToNext]);
 
+  const handleLoad = useCallback(() => {
+    setIsLoading(false);
+  }, []);
+
   if (!isOpen || media.length === 0) return null;
 
   const currentMedia = media[currentIndex];
@@ -68,7 +75,7 @@ export default function MediaModal({
 
   return (
     <div 
-      className="fixed inset-0 z-50 modal-backdrop flex items-center justify-center"
+      className="fixed inset-0 z-[60] modal-backdrop flex items-center justify-center"
       onClick={onClose}
     >
       {/* Close button */}
@@ -84,7 +91,7 @@ export default function MediaModal({
 
       {/* Counter */}
       {hasMultiple && (
-        <div className="absolute top-4 left-4 text-white text-sm bg-gradient-to-r from-[var(--color-tennessee)] to-[var(--color-tennessee-dark)] px-3 py-1 rounded-full shadow-lg">
+        <div className="absolute top-4 left-4 text-white text-sm bg-gradient-to-r from-[var(--color-tennessee)] to-[var(--color-tennessee-dark)] px-3 py-1 rounded-full shadow-lg z-10">
           {currentIndex + 1} / {media.length}
         </div>
       )}
@@ -97,7 +104,7 @@ export default function MediaModal({
               e.stopPropagation();
               goToPrevious();
             }}
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:text-[var(--color-tennessee)] transition-colors p-2 bg-black/30 rounded-full hover:bg-black/50"
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:text-[var(--color-tennessee)] transition-colors p-2 bg-black/30 rounded-full hover:bg-black/50 z-10"
             aria-label="Previous"
           >
             <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -109,7 +116,7 @@ export default function MediaModal({
               e.stopPropagation();
               goToNext();
             }}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:text-[var(--color-tennessee)] transition-colors p-2 bg-black/30 rounded-full hover:bg-black/50"
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:text-[var(--color-tennessee)] transition-colors p-2 bg-black/30 rounded-full hover:bg-black/50 z-10"
             aria-label="Next"
           >
             <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -125,6 +132,13 @@ export default function MediaModal({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="bg-white rounded-2xl overflow-hidden shadow-2xl">
+          {/* Loading indicator */}
+          {isLoading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
+              <div className="w-10 h-10 border-4 border-[var(--color-tennessee)] border-t-transparent rounded-full animate-spin" />
+            </div>
+          )}
+          
           {currentMedia.type === 'video' ? (
             <video 
               key={currentMedia.url}
@@ -133,13 +147,17 @@ export default function MediaModal({
               controls
               autoPlay
               playsInline
+              onLoadedData={handleLoad}
             />
           ) : (
             <img 
               key={currentMedia.url}
               src={currentMedia.url} 
               alt={`Memory shared by ${guestName}`}
-              className="w-full max-h-[75vh] object-contain"
+              className={`w-full max-h-[75vh] object-contain transition-opacity duration-200 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+              onLoad={handleLoad}
+              loading="eager"
+              decoding="async"
             />
           )}
           
@@ -154,24 +172,25 @@ export default function MediaModal({
 
       {/* Thumbnail strip */}
       {hasMultiple && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 bg-black/60 p-2 rounded-lg backdrop-blur-sm">
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 bg-black/60 p-2 rounded-lg backdrop-blur-sm max-w-[90vw] overflow-x-auto">
           {media.map((item, index) => (
             <button
               key={index}
               onClick={(e) => {
                 e.stopPropagation();
+                setIsLoading(true);
                 setCurrentIndex(index);
               }}
-              className={`w-12 h-12 rounded overflow-hidden transition-all ${
+              className={`w-12 h-12 flex-shrink-0 rounded overflow-hidden transition-all ${
                 index === currentIndex 
                   ? 'ring-2 ring-[var(--color-tennessee)] ring-offset-2 ring-offset-black/60' 
                   : 'opacity-60 hover:opacity-100'
               }`}
             >
               {item.type === 'video' ? (
-                <video src={item.url} className="w-full h-full object-cover" muted />
+                <video src={item.url} className="w-full h-full object-cover" muted preload="metadata" />
               ) : (
-                <img src={item.url} alt="" className="w-full h-full object-cover" />
+                <img src={item.url} alt="" className="w-full h-full object-cover" loading="lazy" />
               )}
             </button>
           ))}
@@ -180,3 +199,5 @@ export default function MediaModal({
     </div>
   );
 }
+
+export default memo(MediaModalComponent);

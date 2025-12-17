@@ -1,9 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo, useCallback } from 'react';
 import { Post } from '@/lib/supabase';
 import { getGuestToken } from '@/lib/guest-token';
-import PostModal from './PostModal';
+import { LazyMedia } from './LazyMedia';
+import dynamic from 'next/dynamic';
+
+// Lazy load the modal - it's not needed until user clicks
+const PostModal = dynamic(() => import('./PostModal'), {
+  ssr: false,
+  loading: () => null
+});
 
 interface PostCardProps {
   post: Post;
@@ -12,15 +19,17 @@ interface PostCardProps {
   onHide?: (postId: string, isHidden: boolean) => void;
   onDelete?: (postId: string) => void;
   animationDelay?: number;
+  priority?: boolean; // For above-the-fold cards
 }
 
-export default function PostCard({ 
+function PostCardComponent({ 
   post, 
   onEdit, 
   isAdmin = false,
   onHide,
   onDelete,
-  animationDelay = 0 
+  animationDelay = 0,
+  priority = false
 }: PostCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [canEdit, setCanEdit] = useState(false);
@@ -30,24 +39,45 @@ export default function PostCard({
     setCanEdit(token === post.guest_token);
   }, [post.guest_token]);
 
-  const formatDate = (dateString: string) => {
+  const formatDate = useCallback((dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
       year: 'numeric'
     });
-  };
+  }, []);
 
   const media = post.media || [];
   const hasMedia = media.length > 0;
   const firstMedia = media[0];
 
-  const handleCardClick = (e: React.MouseEvent) => {
+  const handleCardClick = useCallback((e: React.MouseEvent) => {
     // Don't expand if clicking on admin controls or edit button
     if ((e.target as HTMLElement).closest('button')) return;
     setIsExpanded(true);
-  };
+  }, []);
+
+  const handleClose = useCallback(() => {
+    setIsExpanded(false);
+  }, []);
+
+  const handleEdit = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    onEdit?.(post);
+  }, [onEdit, post]);
+
+  const handleHide = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    onHide?.(post.id, !post.is_hidden);
+  }, [onHide, post.id, post.is_hidden]);
+
+  const handleDelete = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (confirm('Are you sure you want to delete this post? This cannot be undone.')) {
+      onDelete?.(post.id);
+    }
+  }, [onDelete, post.id]);
 
   return (
     <>
@@ -63,35 +93,26 @@ export default function PostCard({
             {media.length === 1 ? (
               // Single media
               <div className="aspect-[4/3] relative group">
-                {firstMedia.type === 'video' ? (
-                  <video 
-                    src={firstMedia.url}
-                    className="w-full h-full object-cover"
-                    muted
-                    playsInline
-                  />
-                ) : (
-                  <img 
-                    src={firstMedia.url} 
-                    alt={`Memory shared by ${post.guest_name}`}
-                    className="w-full h-full object-cover"
-                  />
-                )}
+                <LazyMedia
+                  src={firstMedia.url}
+                  type={firstMedia.type}
+                  alt={`Memory shared by ${post.guest_name}`}
+                  className="w-full h-full"
+                  priority={priority}
+                />
                 <MediaOverlay type={firstMedia.type} />
               </div>
             ) : media.length === 2 ? (
               // Two media items side by side
               <div className="grid grid-cols-2 gap-0.5">
                 {media.slice(0, 2).map((item, idx) => (
-                  <div 
-                    key={idx}
-                    className="aspect-square relative group"
-                  >
-                    {item.type === 'video' ? (
-                      <video src={item.url} className="w-full h-full object-cover" muted playsInline />
-                    ) : (
-                      <img src={item.url} alt="" className="w-full h-full object-cover" />
-                    )}
+                  <div key={idx} className="aspect-square relative group">
+                    <LazyMedia
+                      src={item.url}
+                      type={item.type}
+                      className="w-full h-full"
+                      priority={priority && idx === 0}
+                    />
                     <MediaOverlay type={item.type} />
                   </div>
                 ))}
@@ -100,15 +121,13 @@ export default function PostCard({
               // Three or more - 2x2 grid layout showing 4 images
               <div className="grid grid-cols-2 gap-0.5">
                 {media.slice(0, 4).map((item, idx) => (
-                  <div 
-                    key={idx}
-                    className="aspect-square relative group"
-                  >
-                    {item.type === 'video' ? (
-                      <video src={item.url} className="w-full h-full object-cover" muted playsInline />
-                    ) : (
-                      <img src={item.url} alt="" className="w-full h-full object-cover" />
-                    )}
+                  <div key={idx} className="aspect-square relative group">
+                    <LazyMedia
+                      src={item.url}
+                      type={item.type}
+                      className="w-full h-full"
+                      priority={priority && idx === 0}
+                    />
                     <MediaOverlay type={item.type} />
                     {/* Show +N overlay on last visible item if there are more */}
                     {idx === 3 && media.length > 4 && (
@@ -151,10 +170,7 @@ export default function PostCard({
             {/* Edit button for guest */}
             {canEdit && onEdit && !isAdmin && (
               <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onEdit(post);
-                }}
+                onClick={handleEdit}
                 className="text-[var(--color-tennessee)] hover:text-[var(--color-tennessee-dark)] transition-colors p-1"
                 title="Edit your post"
               >
@@ -181,10 +197,7 @@ export default function PostCard({
           {isAdmin && (
             <div className="mt-3 pt-3 border-t border-gray-100 flex items-center gap-2 flex-wrap">
               <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onHide?.(post.id, !post.is_hidden);
-                }}
+                onClick={handleHide}
                 className={`text-xs px-2 py-1 rounded-md transition-colors ${
                   post.is_hidden 
                     ? 'bg-green-100 text-green-700 hover:bg-green-200' 
@@ -194,21 +207,13 @@ export default function PostCard({
                 {post.is_hidden ? 'Show' : 'Hide'}
               </button>
               <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onEdit?.(post);
-                }}
+                onClick={handleEdit}
                 className="text-xs px-2 py-1 rounded-md bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors"
               >
                 Edit
               </button>
               <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (confirm('Are you sure you want to delete this post? This cannot be undone.')) {
-                    onDelete?.(post.id);
-                  }
-                }}
+                onClick={handleDelete}
                 className="text-xs px-2 py-1 rounded-md bg-red-100 text-red-700 hover:bg-red-200 transition-colors"
               >
                 Delete
@@ -223,18 +228,23 @@ export default function PostCard({
         </div>
       </article>
 
-      {/* Expanded Post Modal */}
-      <PostModal
-        isOpen={isExpanded}
-        onClose={() => setIsExpanded(false)}
-        post={post}
-      />
+      {/* Expanded Post Modal - Only rendered when needed */}
+      {isExpanded && (
+        <PostModal
+          isOpen={isExpanded}
+          onClose={handleClose}
+          post={post}
+        />
+      )}
     </>
   );
 }
 
-// Hover overlay component
-function MediaOverlay({ type }: { type: 'image' | 'video' }) {
+// Memoize the entire component to prevent unnecessary re-renders
+export default memo(PostCardComponent);
+
+// Hover overlay component - memoized
+const MediaOverlay = memo(function MediaOverlay({ type }: { type: 'image' | 'video' }) {
   return (
     <>
       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300" />
@@ -248,4 +258,4 @@ function MediaOverlay({ type }: { type: 'image' | 'video' }) {
       )}
     </>
   );
-}
+});
