@@ -42,6 +42,16 @@ export default function Header() {
               Memorial Wall
             </Link>
             <Link 
+              href="/slideshow" 
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                isActive('/slideshow') 
+                  ? 'bg-[var(--color-tennessee-pale)] text-[var(--color-tennessee)]' 
+                  : 'text-[var(--color-charcoal)] hover:bg-gray-100'
+              }`}
+            >
+              Slideshow
+            </Link>
+            <Link 
               href="/about" 
               className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                 isActive('/about') 

@@ -1,9 +1,22 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import SubmitForm from '@/components/SubmitForm';
+import { clearCache, CACHE_KEYS } from '@/lib/cache';
 
 export default function SubmitPage() {
+  const router = useRouter();
+
+  const handleSuccess = () => {
+    // Clear caches so new post appears immediately
+    clearCache(CACHE_KEYS.POSTS);
+    clearCache(CACHE_KEYS.POSTS_COUNT);
+    clearCache(CACHE_KEYS.SLIDESHOW_MEDIA);
+    // Navigate to home
+    router.push('/');
+  };
+
   return (
     <main className="min-h-screen flex flex-col">
       <Header />
@@ -38,7 +51,7 @@ export default function SubmitPage() {
 
           {/* Form Section */}
           <div className="p-6 md:p-8">
-            <SubmitForm />
+            <SubmitForm onSuccess={handleSuccess} />
           </div>
         </div>
 

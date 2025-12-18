@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { getSupabase, Post } from '@/lib/supabase';
+import { clearCache, CACHE_KEYS } from '@/lib/cache';
 import PostCard from '@/components/PostCard';
 import SubmitForm from '@/components/SubmitForm';
 
@@ -90,6 +91,13 @@ export default function AdminPage() {
     }
   }, [isAuthenticated]);
 
+  // Clear all caches when admin makes changes
+  const invalidateCaches = () => {
+    clearCache(CACHE_KEYS.POSTS);
+    clearCache(CACHE_KEYS.POSTS_COUNT);
+    clearCache(CACHE_KEYS.SLIDESHOW_MEDIA);
+  };
+
   const handleHide = async (postId: string, isHidden: boolean) => {
     try {
       const supabase = getSupabase();
@@ -102,6 +110,7 @@ export default function AdminPage() {
         console.error('Error updating post:', error);
         alert('Failed to update post visibility');
       } else {
+        invalidateCaches();
         fetchAllPosts();
       }
     } catch (err) {
@@ -121,6 +130,7 @@ export default function AdminPage() {
         console.error('Error updating post:', error);
         alert('Failed to update post pin status');
       } else {
+        invalidateCaches();
         fetchAllPosts();
       }
     } catch (err) {
@@ -172,6 +182,7 @@ export default function AdminPage() {
         console.error('Error deleting post:', error);
         alert('Failed to delete post');
       } else {
+        invalidateCaches();
         fetchAllPosts();
       }
     } catch (err) {
@@ -187,6 +198,7 @@ export default function AdminPage() {
   const handleEditSuccess = () => {
     setShowEditModal(false);
     setEditingPost(null);
+    invalidateCaches();
     fetchAllPosts();
   };
 
