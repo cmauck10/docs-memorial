@@ -6,6 +6,11 @@ import { clearCache, CACHE_KEYS } from '@/lib/cache';
 import PostCard from '@/components/PostCard';
 import SubmitForm from '@/components/SubmitForm';
 
+// Clear slideshow cache when admin makes changes
+const invalidateSlideshowCache = () => {
+  clearCache(CACHE_KEYS.SLIDESHOW_MEDIA);
+};
+
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [username, setUsername] = useState('');
@@ -91,13 +96,6 @@ export default function AdminPage() {
     }
   }, [isAuthenticated]);
 
-  // Clear all caches when admin makes changes
-  const invalidateCaches = () => {
-    clearCache(CACHE_KEYS.POSTS);
-    clearCache(CACHE_KEYS.POSTS_COUNT);
-    clearCache(CACHE_KEYS.SLIDESHOW_MEDIA);
-  };
-
   const handleHide = async (postId: string, isHidden: boolean) => {
     try {
       const supabase = getSupabase();
@@ -110,7 +108,7 @@ export default function AdminPage() {
         console.error('Error updating post:', error);
         alert('Failed to update post visibility');
       } else {
-        invalidateCaches();
+        invalidateSlideshowCache();
         fetchAllPosts();
       }
     } catch (err) {
@@ -130,7 +128,7 @@ export default function AdminPage() {
         console.error('Error updating post:', error);
         alert('Failed to update post pin status');
       } else {
-        invalidateCaches();
+        invalidateSlideshowCache();
         fetchAllPosts();
       }
     } catch (err) {
@@ -182,7 +180,7 @@ export default function AdminPage() {
         console.error('Error deleting post:', error);
         alert('Failed to delete post');
       } else {
-        invalidateCaches();
+        invalidateSlideshowCache();
         fetchAllPosts();
       }
     } catch (err) {
@@ -198,7 +196,7 @@ export default function AdminPage() {
   const handleEditSuccess = () => {
     setShowEditModal(false);
     setEditingPost(null);
-    invalidateCaches();
+    invalidateSlideshowCache();
     fetchAllPosts();
   };
 

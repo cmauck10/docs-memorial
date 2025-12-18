@@ -2,12 +2,9 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { getSupabase, Post } from '@/lib/supabase';
-import { getCached, setCache, isCacheValid, CACHE_KEYS } from '@/lib/cache';
 import Header from '@/components/Header';
 import PostCard from '@/components/PostCard';
 import dynamic from 'next/dynamic';
-
-const CACHE_TTL = 2 * 60 * 1000; // 2 minutes cache for posts
 
 // Lazy load the edit form modal
 const SubmitForm = dynamic(() => import('@/components/SubmitForm'), {
@@ -26,21 +23,7 @@ export default function Home() {
   const [editingPost, setEditingPost] = useState<Post | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
 
-  const fetchPosts = useCallback(async (offset = 0, append = false, forceRefresh = false) => {
-    // Check cache first for initial load
-    if (offset === 0 && !append && !forceRefresh) {
-      const cachedPosts = getCached<Post[]>(CACHE_KEYS.POSTS);
-      const cachedCount = getCached<number>(CACHE_KEYS.POSTS_COUNT);
-      
-      if (cachedPosts && isCacheValid(CACHE_KEYS.POSTS, CACHE_TTL)) {
-        setPosts(cachedPosts);
-        setTotalCount(cachedCount || cachedPosts.length);
-        setHasMore(cachedCount ? POSTS_PER_PAGE < cachedCount : false);
-        setLoading(false);
-        return;
-      }
-    }
-
+  const fetchPosts = useCallback(async (offset = 0, append = false) => {
     try {
       const supabase = getSupabase();
       const { data, error, count } = await supabase
@@ -60,16 +43,10 @@ export default function Home() {
           setPosts(prev => {
             const existingIds = new Set(prev.map(p => p.id));
             const uniqueNewPosts = newPosts.filter(p => !existingIds.has(p.id));
-            const combined = [...prev, ...uniqueNewPosts];
-            // Cache the combined results
-            setCache(CACHE_KEYS.POSTS, combined);
-            return combined;
+            return [...prev, ...uniqueNewPosts];
           });
         } else {
           setPosts(newPosts);
-          // Cache initial posts
-          setCache(CACHE_KEYS.POSTS, newPosts);
-          setCache(CACHE_KEYS.POSTS_COUNT, count || 0);
         }
         setTotalCount(count || 0);
         setHasMore(count ? offset + POSTS_PER_PAGE < count : false);
@@ -115,8 +92,7 @@ export default function Home() {
   const handleEditSuccess = useCallback(() => {
     setShowEditModal(false);
     setEditingPost(null);
-    // Force refresh after edit
-    fetchPosts(0, false, true);
+    fetchPosts();
   }, [fetchPosts]);
 
   const handleCloseModal = useCallback(() => {

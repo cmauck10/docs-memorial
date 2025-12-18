@@ -99,11 +99,8 @@ function clearOldCache(): void {
   });
 }
 
-// Cache keys
+// Cache keys - only slideshow uses caching to minimize API calls
 export const CACHE_KEYS = {
-  POSTS: 'posts',
-  POSTS_COUNT: 'posts_count',
-  SLIDESHOW_MEDIA: 'slideshow_media',
-  ADMIN_POSTS: 'admin_posts'
+  SLIDESHOW_MEDIA: 'slideshow_media'
 } as const;
 

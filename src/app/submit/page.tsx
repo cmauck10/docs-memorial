@@ -9,9 +9,7 @@ export default function SubmitPage() {
   const router = useRouter();
 
   const handleSuccess = () => {
-    // Clear caches so new post appears immediately
-    clearCache(CACHE_KEYS.POSTS);
-    clearCache(CACHE_KEYS.POSTS_COUNT);
+    // Clear slideshow cache so new media appears
     clearCache(CACHE_KEYS.SLIDESHOW_MEDIA);
     // Navigate to home
     router.push('/');
