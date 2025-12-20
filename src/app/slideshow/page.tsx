@@ -10,7 +10,7 @@ interface MediaWithAuthor extends MediaItem {
   postId: string;
 }
 
-const IMAGE_DURATION = 2000; // 2 seconds for images
+const IMAGE_DURATION = 4000; // 4 seconds for images
 const REFRESH_INTERVAL = 60000; // Check for new media every 60 seconds
 const CACHE_TTL = 60000; // 1 minute cache for slideshow
 
